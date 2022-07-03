@@ -1,0 +1,22 @@
+{
+  "name": "toddler-learning",
+  "version": "1.0.0",
+  "description": "toddler learning",
+  "author": "Benjamin Kaiser",
+  "license": "MIT",
+  "main": "index.tsx",
+  "engines": {
+    "node": ">=15.0.0",
+    "npm": ">=7.0.0"
+  },
+  "scripts": {
+    "build": "esbuild src/index.tsx --jsx-factory=h --jsx-fragment=Fragment --bundle --outfile=docs/bundle.js",
+    "build:dev": "npm run build -- --watch",
+    "build:prod": "npm run build -- --production",
+    "server": "npx http-server"
+  },
+  "dependencies": {
+    "esbuild": "^0.14.48",
+    "preact": "^10.8.2"
+  }
+}
