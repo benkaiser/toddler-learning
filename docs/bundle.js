@@ -284,10 +284,27 @@
     this.__v && (this.__e = true, n2 && this.__h.push(n2), m(this));
   }, _.prototype.render = d, t = [], o = typeof Promise == "function" ? Promise.prototype.then.bind(Promise.resolve()) : setTimeout, g.__r = 0, f = 0;
 
+  // src/Utilities.ts
+  function hslToHex(h2, s2, l2) {
+    l2 /= 100;
+    const a2 = s2 * Math.min(l2, 1 - l2) / 100;
+    const f2 = (n2) => {
+      const k2 = (n2 + h2 / 30) % 12;
+      const color = l2 - a2 * Math.max(Math.min(k2 - 3, 9 - k2, 1), -1);
+      return Math.round(255 * color).toString(16).padStart(2, "0");
+    };
+    return `#${f2(0)}${f2(8)}${f2(4)}`;
+  }
+
   // src/App.tsx
   var ALPHABET = Array.apply(null, Array(26)).map((_2, i2) => String.fromCharCode(i2 + 65));
   var NUMBERS = Array.apply(null, Array(10)).map((_2, i2) => String.fromCharCode(i2 + 48));
   var options = ALPHABET.concat(NUMBERS);
+  function generateColors() {
+    const firstHue = Math.random();
+    const secondHue = (firstHue + 0.5) % 1;
+    return [hslToHex(firstHue * 360, 100, 70), hslToHex(secondHue * 360, 100, 70)];
+  }
   var App = class extends _ {
     constructor(props) {
       super(props);
@@ -300,11 +317,15 @@
       return /* @__PURE__ */ v("div", {
         className: "container"
       }, /* @__PURE__ */ v("button", {
-        className: `left side`,
-        onClick: this.select.bind(this, this.state.leftSide)
+        className: "left side",
+        style: { backgroundColor: this.state.colorForLeft },
+        onMouseDown: this.select.bind(this, this.state.leftSide),
+        onTouchStart: this.select.bind(this, this.state.leftSide)
       }, this.state.leftSide), /* @__PURE__ */ v("button", {
         className: "right side",
-        onClick: this.select.bind(this, this.state.rightSide)
+        style: { backgroundColor: this.state.colorForRight },
+        onMouseDown: this.select.bind(this, this.state.rightSide),
+        onTouchStart: this.select.bind(this, this.state.rightSide)
       }, this.state.rightSide), /* @__PURE__ */ v("button", {
         className: "mode",
         onClick: this.changeMode.bind(this)
@@ -352,6 +373,7 @@
       }
     }
     nextState(modeOverride, statusOverride, statusClass) {
+      const [colorForLeft, colorForRight] = generateColors();
       const mode = modeOverride || this.state?.mode || "ALL";
       const allOptions = mode === "ALL" ? options.slice() : mode === "NUM" ? NUMBERS.slice() : ALPHABET.slice();
       const firstIndex = Math.floor(allOptions.length * Math.random());
@@ -361,6 +383,8 @@
       return {
         leftSide: firstOption,
         rightSide: secondOption,
+        colorForLeft,
+        colorForRight,
         pick: Math.random() > 0.5 ? firstOption : secondOption,
         mode,
         status: statusOverride || this.state?.status,

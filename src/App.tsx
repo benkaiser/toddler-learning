@@ -1,8 +1,11 @@
 import { h, Component } from 'preact';
+import { hslToHex } from './Utilities';
 
 interface AppState {
   leftSide: string;
   rightSide: string;
+  colorForLeft: string;
+  colorForRight: string;
   pick: string;
   mode: string;
   status: string;
@@ -12,6 +15,12 @@ interface AppState {
 const ALPHABET = Array.apply(null, Array(26)).map((_, i) => String.fromCharCode(i + 65));
 const NUMBERS = Array.apply(null, Array(10)).map((_, i) => String.fromCharCode(i + 48));
 const options = ALPHABET.concat(NUMBERS);
+
+function generateColors() {
+  const firstHue = Math.random();
+  const secondHue = (firstHue + 0.5) % 1;
+  return [hslToHex(firstHue * 360, 100, 70), hslToHex(secondHue * 360, 100, 70)];
+}
 
 export default class App extends Component<{}, AppState> {
   constructor(props) {
@@ -25,8 +34,8 @@ export default class App extends Component<{}, AppState> {
 
   render() {
     return <div className='container'>
-      <button className={`left side`} onClick={this.select.bind(this, this.state.leftSide)}>{ this.state.leftSide }</button>
-      <button className='right side' onClick={this.select.bind(this, this.state.rightSide)}>{ this.state.rightSide }</button>
+      <button className='left side' style={{backgroundColor: this.state.colorForLeft}} onMouseDown={this.select.bind(this, this.state.leftSide)} onTouchStart={this.select.bind(this, this.state.leftSide)}>{ this.state.leftSide }</button>
+      <button className='right side' style={{backgroundColor: this.state.colorForRight}} onMouseDown={this.select.bind(this, this.state.rightSide)} onTouchStart={this.select.bind(this, this.state.rightSide)}>{ this.state.rightSide }</button>
       <button className='mode' onClick={this.changeMode.bind(this)}>{this.getModeName()}</button>
       { this.state.status && <div className={`status ${this.state.statusClass}`}>{this.state.status}</div> }
     </div>;
@@ -75,6 +84,7 @@ export default class App extends Component<{}, AppState> {
   }
 
   nextState(modeOverride?: string, statusOverride?: string, statusClass?: string) {
+    const [colorForLeft, colorForRight ] = generateColors();
     const mode = modeOverride || this.state?.mode || 'ALL';
     const allOptions = mode === 'ALL' ? options.slice() : mode === 'NUM' ? NUMBERS.slice() : ALPHABET.slice();
     const firstIndex = Math.floor(allOptions.length * Math.random());
@@ -84,6 +94,8 @@ export default class App extends Component<{}, AppState> {
     return {
       leftSide: firstOption,
       rightSide: secondOption,
+      colorForLeft,
+      colorForRight,
       pick: Math.random() > 0.5 ? firstOption : secondOption,
       mode: mode,
       status: statusOverride || this.state?.status,
